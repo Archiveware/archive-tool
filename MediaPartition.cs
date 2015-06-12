@@ -50,6 +50,17 @@ namespace ArchiveTool
 
                 codingHandle.Free();
                 dataHandle.Free();
+
+                data.CalculateCrc((int)header.DataLength, 100);
+                badDataChunks = CrcMismatches(header.ChunkCrc32.Take(100).ToArray(), data.Crc);
+                if (badDataChunks.Any())
+                {
+                    if (verbose)
+                        Console.WriteLine("Repair unexpectedly failed: {0} bad data chunks left!", badDataChunks.Count());
+                    else
+                        Console.Write("!");
+                    return false;
+                }
             }
 
             if (extract)
@@ -76,6 +87,17 @@ namespace ArchiveTool
                 Crc = new UInt32[crcCount];
                 Buffer = new byte[bufferLength];
             }
+
+            public void CalculateCrc(int length, int chunkCount) {
+                int chunkLength = length / chunkCount;
+                int chunkOffset = 0;
+                for (int i = 0; i < chunkCount; i++)
+                {
+                    Crc[i] = Crc32C.Crc32CAlgorithm.Compute(Buffer, chunkOffset, chunkLength);
+                    chunkOffset += chunkLength;
+                }
+
+        }
         }
 
         private static ReadResultWrapper Read(Stream fs, long offset, int length, int chunkCount)
@@ -97,16 +119,9 @@ namespace ArchiveTool
             {
                 fs.Seek(offset, SeekOrigin.Begin);
                 fs.Read(result.Buffer, bufferOffset, readLength);
-
-                int chunkLength = length / chunkCount;
-                int chunkOffset = 0;
-                for (int i = 0; i < chunkCount; i++)
-                {
-                    result.Crc[i] = Crc32C.Crc32CAlgorithm.Compute(result.Buffer, chunkOffset, chunkLength);
-                    chunkOffset += chunkLength;
-                }
             }
 
+            result.CalculateCrc(length, chunkCount);
             return result;
         }
 
