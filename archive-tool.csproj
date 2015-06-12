@@ -46,6 +46,7 @@
     <Compile Include="MediaPartition.cs" />
     <Compile Include="MediaPartitionHeader.cs" />
     <Compile Include="MediaProcessor.cs" />
+    <Compile Include="NativeCode.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

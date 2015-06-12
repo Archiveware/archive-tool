@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,8 +20,36 @@ namespace ArchiveTool
 
             if (badDataChunks.Count + badCodingChunks.Count > header.CodingChunks)
             {
-                Console.WriteLine("{0}Slice #{1} is irrecoverably damaged: {2} bad chunks, exceeding maximum {3}{0}", verbose ? "" : "\r\n", header.SliceSequence, badDataChunks.Count + badCodingChunks.Count, header.CodingChunks);
+                if (verbose)
+                    Console.WriteLine("Slice #{0} is irrecoverably damaged: {1} bad chunks, exceeding maximum {2}", header.SliceSequence, badDataChunks.Count + badCodingChunks.Count, header.CodingChunks);
+                else
+                    Console.Write("X");
                 return false;
+            }
+
+            if (badDataChunks.Any() && repair)
+            {
+                if (verbose)
+                    Console.Write("Repairing {0} data chunks... ", badDataChunks.Count());
+
+                var erasures = badDataChunks.ToList();
+                foreach (var badCodingChunkIndex in badCodingChunks)
+                    erasures.Add(100 + badCodingChunkIndex);
+                erasures.Add(-1); //End-of-list marker
+
+                var dataHandle = GCHandle.Alloc(data.Buffer, GCHandleType.Pinned);
+                var codingHandle = GCHandle.Alloc(coding.Buffer, GCHandleType.Pinned);
+
+                int result = NativeCode.Decode(100, header.CodingChunks, header.CodingWordSize, dataHandle.AddrOfPinnedObject(), codingHandle.AddrOfPinnedObject(),
+                                                (int)(header.DataLength / 100), erasures.ToArray());
+
+                if (verbose)
+                    Console.WriteLine(result == 0 ? "OK" : string.Format("FAILED ({0})", result));
+                else
+                    Console.Write(result == 0 ? "r" : "x");
+
+                codingHandle.Free();
+                dataHandle.Free();
             }
 
             if (extract)
@@ -31,6 +60,8 @@ namespace ArchiveTool
                     fs2.Write(data.Buffer, 0, (int)header.DataLength);
                 }
             }
+
+            Console.Write(".");
 
             return true;
         }
