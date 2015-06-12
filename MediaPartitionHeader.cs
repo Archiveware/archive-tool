@@ -14,6 +14,7 @@ namespace ArchiveTool
         public uint SliceSequence;
         public uint SliceDataOffset;
         public uint Sequence;
+        private long HeaderOffset;
         public long DataOffset;
         public uint DataLength;
         public long CodingOffset;
@@ -35,7 +36,7 @@ namespace ArchiveTool
             }
         }
 
-        public static int HeaderLength = 890;
+        public static int HeaderLength = 898;
 
         public static MediaPartitionHeader TryRead(Stream fs, long offset)
         {
@@ -54,21 +55,26 @@ namespace ArchiveTool
                 header.SliceSequence = BitConverter.ToUInt32(headerData, 48);
                 header.SliceDataOffset = BitConverter.ToUInt32(headerData, 52);
                 header.Sequence = BitConverter.ToUInt32(headerData, 56);
-                header.DataOffset = BitConverter.ToInt64(headerData, 60);
-                header.DataLength = BitConverter.ToUInt32(headerData, 68);
-                header.CodingOffset = BitConverter.ToInt64(headerData, 72);
-                header.CodingLength = BitConverter.ToUInt32(headerData, 80);
-                header.CodingChunks = headerData[84];
-                header.CodingWordSize = headerData[85];
+                header.HeaderOffset = BitConverter.ToInt64(headerData, 60);
+                header.DataOffset = BitConverter.ToInt64(headerData, 68);
+                header.DataLength = BitConverter.ToUInt32(headerData, 76);
+                header.CodingOffset = BitConverter.ToInt64(headerData, 80);
+                header.CodingLength = BitConverter.ToUInt32(headerData, 88);
+                header.CodingChunks = headerData[92];
+                header.CodingWordSize = headerData[93];
 
                 for (int i = 0; i < header.ChunkCrc32.Length; i++)
                 {
-                    header.ChunkCrc32[i] = BitConverter.ToUInt32(headerData, 86 + (i * 4));
+                    header.ChunkCrc32[i] = BitConverter.ToUInt32(headerData, 94 + (i * 4));
                 }
                 header.Crc = BitConverter.ToUInt32(headerData, HeaderLength - 4);
 
                 header.IsValid = headerData.Take(32).SequenceEqual(Signature) && (header.Crc == Crc32C.Crc32CAlgorithm.Compute(headerData, 0, HeaderLength - 4));
 
+                //If header is not at original location, adjust data offsets accordingly (media may be truncated...)
+                header.DataOffset += (offset - header.HeaderOffset); 
+                header.CodingOffset += (offset - header.HeaderOffset);
+                
                 return header;
             }
             catch (Exception ex)

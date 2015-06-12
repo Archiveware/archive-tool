@@ -70,7 +70,10 @@ namespace ArchiveTool
                             headers.Add(header);
 
                             if (header.IsValid)
-                                offset += (offset > header.DataOffset ? header.CodingLength : header.DataLength) + MediaPartitionHeader.HeaderLength - buffer.Length + 32;
+                            {
+                                offset += (offset > header.DataOffset ? header.CodingLength : header.DataLength) + MediaPartitionHeader.HeaderLength + j - (buffer.Length - 32);
+                                break;
+                            }
                         }
                     }
                 }

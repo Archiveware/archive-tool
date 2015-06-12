@@ -82,15 +82,29 @@ namespace ArchiveTool
         {
             var result = new ReadResultWrapper(chunkCount, length);
 
-            fs.Seek(offset, SeekOrigin.Begin);
-            fs.Read(result.Buffer, 0, length);
-
-            int chunkLength = length / chunkCount;
-            int chunkOffset = 0;
-            for (int i = 0; i < chunkCount; i++)
+            int bufferOffset = 0;
+            int readLength = length;
+            //Negative offset may be encountered if the media stream is truncated. Attempt to read as many bytes as possible anyway
+            if (offset < 0 && -offset < length)
             {
-                result.Crc[i] = Crc32C.Crc32CAlgorithm.Compute(result.Buffer, chunkOffset, chunkLength);
-                chunkOffset += chunkLength;
+                bufferOffset = -(int)offset;
+                readLength += (int)offset;
+                offset = 0;
+            }
+
+            //If we can do a valid read, go ahead: otherwise, we'll skip this step (and return a zero-filled buffer)
+            if (offset >= 0 && offset < fs.Length && readLength > 0)
+            {
+                fs.Seek(offset, SeekOrigin.Begin);
+                fs.Read(result.Buffer, bufferOffset, readLength);
+
+                int chunkLength = length / chunkCount;
+                int chunkOffset = 0;
+                for (int i = 0; i < chunkCount; i++)
+                {
+                    result.Crc[i] = Crc32C.Crc32CAlgorithm.Compute(result.Buffer, chunkOffset, chunkLength);
+                    chunkOffset += chunkLength;
+                }
             }
 
             return result;
