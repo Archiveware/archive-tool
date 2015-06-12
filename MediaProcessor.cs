@@ -24,7 +24,7 @@ namespace ArchiveTool
                     var headers = HeaderScan(fs, verbose);
 
                     Console.WriteLine();
-                    Console.WriteLine("Validating data associated with {0} headers", headers.Count);
+                    Console.WriteLine("Validating{0}{1} data associated with {2} headers", repair ? " / Repairing" : "", extract ? " / Extracting" : "", headers.Count);
                     var validPartitions = new Dictionary<String, MediaPartitionHeader>();
                     foreach (var header in headers)
                     {
