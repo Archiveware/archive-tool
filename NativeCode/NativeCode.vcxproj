@@ -70,11 +70,13 @@
     <ClCompile Include="galois.c" />
     <ClCompile Include="Interface.c" />
     <ClCompile Include="jerasure.c" />
+    <ClCompile Include="lz4.c" />
     <ClCompile Include="reed_sol.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="galois.h" />
     <ClInclude Include="jerasure.h" />
+    <ClInclude Include="lz4.h" />
     <ClInclude Include="reed_sol.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

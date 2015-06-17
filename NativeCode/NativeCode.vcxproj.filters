@@ -27,6 +27,9 @@
     <ClCompile Include="Interface.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="lz4.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="reed_sol.h">
@@ -36,6 +39,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="jerasure.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lz4.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

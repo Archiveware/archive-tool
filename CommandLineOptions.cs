@@ -15,10 +15,10 @@ namespace ArchiveTool
         [Option('i', "infile", Required = true, HelpText = "The input file to process: media file (e.g. ISO) or (partial) archive set, depending on selected operation")]
         public string InputFile { get; set; }
 
-        [Option('x', "extract", DefaultValue = true, HelpText = "Extract any source files or archive set parts found")]
+        [Option('x', "extract", DefaultValue = false, HelpText = "Extract any source files or archive set parts found")]
         public bool DoExtract { get; set; }
 
-        [Option('r', "repair", DefaultValue = true, HelpText = "Attempt to repair any damaged section of media files or archive sets")]
+        [Option('r', "repair", DefaultValue = false, HelpText = "Attempt to repair any damaged section of media files or archive sets")]
         public bool DoRepair { get; set; }
 
         [Option('v', "verbose", DefaultValue = false, HelpText = "Display technical details while processing")]

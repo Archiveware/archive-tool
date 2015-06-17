@@ -27,3 +27,7 @@ __declspec(dllexport) int Decode(int k, int m, int w, char *datablock, char *cod
 
 	return i;
 }
+
+__declspec(dllexport) int Decompress(const char *source, char *dest, int compressedSize, int maxDecompressedSize){
+	return LZ4_decompress_safe(source, dest, compressedSize, maxDecompressedSize);
+}

@@ -39,10 +39,12 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ArchiveSetKeys.cs" />
     <Compile Include="ArchiveSetProcessor.cs" />
     <Compile Include="ArchiveSliceHeader.cs" />
     <Compile Include="ArchiveSliceProcessor.cs" />
     <Compile Include="CommandLineOptions.cs" />
+    <Compile Include="ArchiveFileExtentHeader.cs" />
     <Compile Include="MediaPartition.cs" />
     <Compile Include="MediaPartitionHeader.cs" />
     <Compile Include="MediaProcessor.cs" />

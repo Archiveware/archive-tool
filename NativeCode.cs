@@ -11,5 +11,8 @@ namespace ArchiveTool
     {
         [DllImport("NativeCode.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Decode(int k, int m, int w, IntPtr data, IntPtr coding, int blockSize, int[] erasures);
+
+        [DllImport("NativeCode.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int Decompress(IntPtr source, IntPtr destination, int compressedSize, int maxDecompressedSize);
     }
 }
