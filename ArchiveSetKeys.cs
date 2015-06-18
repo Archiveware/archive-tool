@@ -21,7 +21,7 @@ namespace ArchiveTool
                 return true;
             }
 
-            if(Keys.ContainsKey((UInt16)index))
+            if (Keys.ContainsKey((UInt16)index))
             {
                 key = Keys[(UInt16)index];
                 return true;
@@ -50,7 +50,7 @@ namespace ArchiveTool
                     }
                     catch (Exception)
                     {
-                        //Corrupted message or bad key: too bad...
+                        Console.WriteLine("Unexpected error: unable to decrypt embedded PKCS#7 message (containing archive set keys) using certificate '{0}'", myCert.Subject);
                         return;
                     }
 
@@ -67,8 +67,6 @@ namespace ArchiveTool
                     }
                 }
             }
-
-
         }
 
         internal static X509Certificate2 MatchingCertFromLocalStore(byte[] subjectKeyIdentifier)
@@ -80,12 +78,11 @@ namespace ArchiveTool
 
             foreach (var cert in store.Certificates)
             {
-                if (cert.HasPrivateKey && cert.Extensions[SubjectKeyIdentifierExtensionOid] != null)
-                    if (cert.Extensions[SubjectKeyIdentifierExtensionOid].RawData.SequenceEqual(subjectKeyIdentifier))
-                    {
-                        store.Close();
-                        return cert;
-                    }
+                if (cert.HasPrivateKey && cert.Extensions[SubjectKeyIdentifierExtensionOid] != null && cert.Extensions[SubjectKeyIdentifierExtensionOid].RawData.SequenceEqual(subjectKeyIdentifier))
+                {
+                    store.Close();
+                    return cert;
+                }
             }
 
             store.Close();
