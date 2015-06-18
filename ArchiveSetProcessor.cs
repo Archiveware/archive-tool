@@ -10,6 +10,8 @@ namespace ArchiveTool
 {
     class ArchiveSetProcessor
     {
+        static ArchiveSetKeys Keys = new ArchiveSetKeys();
+
         public static void Scan(string inFile, string keyFile, string outPath, bool extract, bool verbose)
         {
             try
@@ -17,7 +19,7 @@ namespace ArchiveTool
                 if (extract && !Directory.Exists(outPath))
                     Directory.CreateDirectory(outPath);
 
-                using (var fs = new FileStream(inFile, FileMode.Open, FileAccess.Read, FileShare.Read))
+                using (var fs = new FileStream(inFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 {
                     Console.WriteLine("Scanning {0} for archive file headers", inFile);
                     byte[] buffer = new byte[65536];
@@ -69,14 +71,17 @@ namespace ArchiveTool
                         Console.WriteLine("  Skipping {0} ({1}-{2}/{3}) due to encrypted data CRC mismatch!", header.FullName, header.ExtentOffset, header.ExtentLength, header.TotalLength);
                     else
                     {
-                        if (!ArchiveSetKeys.GetKeyByIndex(header.KeyIndex, out key))
+                        if (!Keys.GetKeyByIndex(header.KeyIndex, out key))
                             Console.WriteLine("  Skipping {0} ({1}-{2}/{3}) due to missing encryption key!", header.FullName, header.ExtentOffset, header.ExtentLength, header.TotalLength);
                         else
                         {
-                            using (var csp = new System.Security.Cryptography.AesCryptoServiceProvider() { KeySize = 256, Key = key, IV = header.IV, Padding = System.Security.Cryptography.PaddingMode.None })
-                            using (var decryptor = csp.CreateDecryptor())
-                                plaintextExtent = decryptor.TransformFinalBlock(encryptedExtent, 0, encryptedExtent.Length);
-
+                            using (var csp = new System.Security.Cryptography.AesCryptoServiceProvider())
+                            {
+                                csp.Key = key;
+                                csp.IV = header.IV;
+                                using (var decryptor = csp.CreateDecryptor())
+                                    plaintextExtent = decryptor.TransformFinalBlock(encryptedExtent, 0, encryptedExtent.Length);
+                            }
                             byte[] decompressedExtent = new byte[header.UncompressedDataLength];
                             var inHandle = GCHandle.Alloc(plaintextExtent, GCHandleType.Pinned);
                             var outHandle = GCHandle.Alloc(decompressedExtent, GCHandleType.Pinned);
@@ -90,8 +95,8 @@ namespace ArchiveTool
                             else
                             {
                                 if (header.FullName.StartsWith("//EncryptedKeys:"))
-                                    ArchiveSetKeys.AddFromEncryptedBlob(decompressedExtent);
-                                else if(extract)
+                                    Keys.AddFromPkcs7Message(decompressedExtent);
+                                else if (extract)
                                 {
 
                                 }
