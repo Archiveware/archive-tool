@@ -20,6 +20,13 @@ namespace ArchiveTool
                 key = new byte[32];
                 return true;
             }
+
+            if(Keys.ContainsKey((UInt16)index))
+            {
+                key = Keys[(UInt16)index];
+                return true;
+            }
+
             key = null;
             return false;
         }
