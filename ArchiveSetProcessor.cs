@@ -39,7 +39,6 @@ namespace ArchiveTool
                             }
                         }
                     }
-
                 }
             }
             catch (Exception ex)
@@ -47,10 +46,9 @@ namespace ArchiveTool
                 Console.WriteLine("Fatal error: {0}", ex.Message);
                 Environment.Exit(2);
             }
-
         }
 
-        private static bool ProcessFileExtent(Stream fs, long offset, bool extract, string outPath, bool verbose, out uint dataLength)
+        internal static bool ProcessFileExtent(Stream fs, long offset, bool extract, string outPath, bool verbose, out uint dataLength)
         {
             byte[] key;
             byte[] plaintextExtent;
@@ -67,44 +65,61 @@ namespace ArchiveTool
                     byte[] encryptedExtent = new byte[header.EncryptedDataLength];
                     fs.Read(encryptedExtent, 0, encryptedExtent.Length);
 
-                    if (header.EncryptedDataCrc != Crc32C.Crc32CAlgorithm.Compute(encryptedExtent, 0, encryptedExtent.Length))
-                        Console.WriteLine("  Skipping {0} ({1}-{2}/{3}) due to encrypted data CRC mismatch!", header.FullName, header.ExtentOffset, header.ExtentLength, header.TotalLength);
-                    else
+                    try
                     {
+                        if (header.EncryptedDataCrc != Crc32C.Crc32CAlgorithm.Compute(encryptedExtent, 0, encryptedExtent.Length))
+                            throw new ArchiveFileException("encrypted data CRC mismatch");
+
                         if (!Keys.GetKeyByIndex(header.KeyIndex, out key))
-                            Console.WriteLine("  Skipping {0} ({1}-{2}/{3}) due to missing encryption key!", header.FullName, header.ExtentOffset, header.ExtentLength, header.TotalLength);
-                        else
+                            throw new ArchiveFileException("missing encryption key");
+
+                        using (var csp = new System.Security.Cryptography.AesCryptoServiceProvider() { Key = key, IV = header.IV })
                         {
-                            using (var csp = new System.Security.Cryptography.AesCryptoServiceProvider())
-                            {
-                                csp.Key = key;
-                                csp.IV = header.IV;
-                                using (var decryptor = csp.CreateDecryptor())
-                                    plaintextExtent = decryptor.TransformFinalBlock(encryptedExtent, 0, encryptedExtent.Length);
-                            }
-                            byte[] decompressedExtent = new byte[header.UncompressedDataLength];
-                            var inHandle = GCHandle.Alloc(plaintextExtent, GCHandleType.Pinned);
-                            var outHandle = GCHandle.Alloc(decompressedExtent, GCHandleType.Pinned);
-
-                            int byteCount = NativeCode.Decompress(inHandle.AddrOfPinnedObject(), outHandle.AddrOfPinnedObject(), (int)header.CompressedDataLength, (int)header.UncompressedDataLength);
-                            outHandle.Free();
-                            inHandle.Free();
-
-                            if (byteCount != header.UncompressedDataLength)
-                                Console.WriteLine("  Skipping {0} ({1}-{2}/{3}) due to unexpected decompression failure: {4}", header.FullName, header.ExtentOffset, header.ExtentLength, header.TotalLength, byteCount);
-                            else
-                            {
-                                if (header.FullName.StartsWith("//EncryptedKeys:"))
-                                    Keys.AddFromPkcs7Message(decompressedExtent);
-                                else if (extract)
+                            using (var decryptor = csp.CreateDecryptor())
+                                try
                                 {
-
+                                    plaintextExtent = decryptor.TransformFinalBlock(encryptedExtent, 0, encryptedExtent.Length);
                                 }
+                                catch (Exception ex)
+                                {
+                                    throw new ArchiveFileException("unexpected decryption failure: {0}", ex.Message);
+                                }
+                        }
 
-                                if (!verbose)
-                                    Console.Write(".");
+                        byte[] decompressedExtent = new byte[header.UncompressedDataLength];
+                        var inHandle = GCHandle.Alloc(plaintextExtent, GCHandleType.Pinned);
+                        var outHandle = GCHandle.Alloc(decompressedExtent, GCHandleType.Pinned);
+
+                        int byteCount = NativeCode.Decompress(inHandle.AddrOfPinnedObject(), outHandle.AddrOfPinnedObject(), (int)header.CompressedDataLength, (int)header.UncompressedDataLength);
+                        outHandle.Free();
+                        inHandle.Free();
+
+                        if (byteCount != header.UncompressedDataLength)
+                            throw new ArchiveFileException("unexpected decompression failure: {0}", byteCount);
+
+                        VerifyExtent(header, decompressedExtent);
+
+                        if (header.FullName.StartsWith("//EncryptedKeys:"))
+                            Keys.AddFromPkcs7Message(decompressedExtent);
+                        else if (extract)
+                        {
+                            var filePath = Path.Combine(outPath, header.FullName);
+                            if (!Directory.Exists(Path.GetDirectoryName(filePath)))
+                                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+
+                            using (var outFileStream = new FileStream(filePath, FileMode.Create))
+                            {
+                                outFileStream.Seek((long)header.ExtentOffset, SeekOrigin.Begin);
+                                outFileStream.Write(decompressedExtent, 0, decompressedExtent.Length);
                             }
                         }
+
+                        if (!verbose)
+                            Console.Write(".");
+                    }
+                    catch (ArchiveFileException ex)
+                    {
+                        Console.WriteLine("      Skipping {0} ({1}-{2}/{3}) due to {4}", header.FullName, header.ExtentOffset, header.ExtentLength, header.TotalLength, ex.ConsoleMessage);
                     }
 
                     dataLength = header.HeaderLength + header.EncryptedDataLength;
@@ -116,7 +131,7 @@ namespace ArchiveTool
         }
 
         /// <summary>Helper function for <see cref="Scan"/>: returns True if the first 8 bytes at the specified offset match the file extent header signature.</summary>
-        private static bool SignatureFound(byte[] buffer, int offset)
+        internal static bool SignatureFound(byte[] buffer, int offset)
         {
             for (int i = 0; i < 8; i++)
             {
@@ -124,6 +139,12 @@ namespace ArchiveTool
                     return false;
             }
             return true;
+        }
+
+        /// <summary>Helper function for <see cref="Scan"/>: checks the SHA-384 hash of single-extent as well as multi-extent files (incrementally until the final extent is encountered).</summary>
+        internal static void VerifyExtent(ArchiveFileExtentHeader header, byte[] extent)
+        {
+            //TODO
         }
 
     }
