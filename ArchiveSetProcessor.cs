@@ -40,6 +40,13 @@ namespace ArchiveTool
                         }
                     }
                 }
+
+                var di = new DirectoryInfo(Path.Combine(outPath, "SmallFileBundles"));
+                if (di.Exists && di.GetFiles().Any())
+                {
+                    foreach (var smallFileBundle in di.GetFiles())
+                        SmallFileBundleProcessor.Scan(smallFileBundle.FullName, Path.Combine(outPath, "ArchiveFiles"), extract, verbose);
+                }
             }
             catch (Exception ex)
             {
@@ -103,7 +110,7 @@ namespace ArchiveTool
                             Keys.AddFromPkcs7Message(decompressedExtent);
                         else if (extract)
                         {
-                            var filePath = Path.Combine(outPath, header.FullName);
+                            var filePath = Path.Combine(outPath, header.FullName.StartsWith("//SmallFileBundle") ? "SmallFileBundles" : "ArchiveFiles", header.FullName.Replace("//", ""));
                             if (!Directory.Exists(Path.GetDirectoryName(filePath)))
                                 Directory.CreateDirectory(Path.GetDirectoryName(filePath));
 
