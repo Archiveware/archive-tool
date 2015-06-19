@@ -127,6 +127,10 @@ namespace ArchiveTool
                                     outFileStream.Seek((long)header.ExtentOffset, SeekOrigin.Begin);
                                     outFileStream.Write(decompressedExtent, 0, decompressedExtent.Length);
                                 }
+
+                                var info = new FileInfo(filePath);
+                                info.CreationTime = header.Created;
+                                info.LastWriteTime = header.LastModified;
                             }
                         }
                         if (!verbose)

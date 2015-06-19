@@ -47,8 +47,8 @@ namespace ArchiveTool
                 header.ExtentOffset = BitConverter.ToUInt64(headerData, 16);
                 header.ExtentLength = BitConverter.ToUInt32(headerData, 24);
                 header.TotalLength = BitConverter.ToUInt64(headerData, 28);
-                header.Created = DateTime.FromBinary(BitConverter.ToInt64(headerData, 36));
-                header.LastModified = DateTime.FromBinary(BitConverter.ToInt64(headerData, 44));
+                header.Created = new DateTime(BitConverter.ToInt64(headerData, 36));
+                header.LastModified = new DateTime(BitConverter.ToInt64(headerData, 44));
                 Array.ConstrainedCopy(headerData, 52, header.DataHash, 0, 48);
                 Array.ConstrainedCopy(headerData, 100, header.IV, 0, 16);
                 header.KeyIndex = BitConverter.ToUInt16(headerData, 116);
