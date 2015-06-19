@@ -9,7 +9,7 @@ namespace ArchiveTool
 {
     class CommandLineOptions
     {
-        [Option('o', "object", Required = true, HelpText = "The type of input file: Media, Slice or Archive")]
+        [Option('o', "object", Required = true, HelpText = "The type of input file: Media, Slice, Archive or SmallFileBundle")]
         public string ObjectType { get; set; }
 
         [Option('i', "infile", Required = true, HelpText = "The input file to process: media file (e.g. ISO) or (partial) archive set, depending on selected operation")]
