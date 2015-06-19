@@ -81,6 +81,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ArchiveFileException.cs" />
+    <Compile Include="ArchiveFileExtentCopies.cs" />
     <Compile Include="ArchiveSetKeys.cs" />
     <Compile Include="ArchiveSetProcessor.cs" />
     <Compile Include="ArchiveSliceHeader.cs" />

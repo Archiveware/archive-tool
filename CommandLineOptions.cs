@@ -24,10 +24,10 @@ namespace ArchiveTool
         [Option('v', "verbose", DefaultValue = false, HelpText = "Display technical details while processing")]
         public bool Verbose { get; set; }
 
-        [Option('p', "outpath", Required = true, HelpText = "Output path to save any extracted files")]
+        [Option('p', "outpath", HelpText = "Output path to save any extracted files")]
         public string OutputPath { get; set; }
 
-        [Option('k', "keyfile", HelpText = "File containing all archive set keys (required to extract source files)")]
+        [Option('c', "keyfile", HelpText = "File containing all archive set keys (required to extract source files)")]
         public string KeyFile { get; set; }
     }
 }

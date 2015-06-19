@@ -11,6 +11,7 @@ namespace ArchiveTool
     class ArchiveSetProcessor
     {
         static ArchiveSetKeys Keys = new ArchiveSetKeys();
+        static ArchiveFileExtentCopies CopiedExtents = new ArchiveFileExtentCopies();
 
         public static void Scan(string inFile, string keyFile, string outPath, bool extract, bool verbose)
         {
@@ -40,6 +41,9 @@ namespace ArchiveTool
                         }
                     }
                 }
+
+                if (extract)
+                    CopiedExtents.WriteToDestination();
 
                 var di = new DirectoryInfo(Path.Combine(outPath, "SmallFileBundles"));
                 if (di.Exists && di.GetFiles().Any())
@@ -93,34 +97,38 @@ namespace ArchiveTool
                                 }
                         }
 
-                        byte[] decompressedExtent = new byte[header.UncompressedDataLength];
-                        var inHandle = GCHandle.Alloc(plaintextExtent, GCHandleType.Pinned);
-                        var outHandle = GCHandle.Alloc(decompressedExtent, GCHandleType.Pinned);
-
-                        int byteCount = NativeCode.Decompress(inHandle.AddrOfPinnedObject(), outHandle.AddrOfPinnedObject(), (int)header.CompressedDataLength, (int)header.UncompressedDataLength);
-                        outHandle.Free();
-                        inHandle.Free();
-
-                        if (byteCount != header.UncompressedDataLength)
-                            throw new ArchiveFileException("unexpected decompression failure: {0}", byteCount);
-
-                        VerifyExtent(header, decompressedExtent);
-
-                        if (header.FullName.StartsWith("//EncryptedKeys:"))
-                            Keys.AddFromPkcs7Message(decompressedExtent);
-                        else if (extract)
+                        if (header.IsCopyOfExtentSequence != 0)
+                            CopiedExtents.Add(header);
+                        else
                         {
-                            var filePath = Path.Combine(outPath, header.FullName.StartsWith("//SmallFileBundle") ? "SmallFileBundles" : "ArchiveFiles", header.FullName.Replace("//", ""));
-                            if (!Directory.Exists(Path.GetDirectoryName(filePath)))
-                                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+                            byte[] decompressedExtent = new byte[header.UncompressedDataLength];
+                            var inHandle = GCHandle.Alloc(plaintextExtent, GCHandleType.Pinned);
+                            var outHandle = GCHandle.Alloc(decompressedExtent, GCHandleType.Pinned);
 
-                            using (var outFileStream = new FileStream(filePath, FileMode.Create))
+                            int byteCount = NativeCode.Decompress(inHandle.AddrOfPinnedObject(), outHandle.AddrOfPinnedObject(), (int)header.CompressedDataLength, (int)header.UncompressedDataLength);
+                            outHandle.Free();
+                            inHandle.Free();
+
+                            if (byteCount != header.UncompressedDataLength)
+                                throw new ArchiveFileException("unexpected decompression failure: {0}", byteCount);
+
+                            VerifyExtent(header, decompressedExtent);
+
+                            if (header.FullName.StartsWith("//EncryptedKeys:"))
+                                Keys.AddFromPkcs7Message(decompressedExtent);
+                            else if (extract)
                             {
-                                outFileStream.Seek((long)header.ExtentOffset, SeekOrigin.Begin);
-                                outFileStream.Write(decompressedExtent, 0, decompressedExtent.Length);
+                                var filePath = Path.Combine(outPath, header.FullName.StartsWith("//SmallFileBundle") ? "SmallFileBundles" : "ArchiveFiles", header.FullName.Replace("//", ""));
+                                if (!Directory.Exists(Path.GetDirectoryName(filePath)))
+                                    Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+
+                                using (var outFileStream = new FileStream(filePath, FileMode.Create))
+                                {
+                                    outFileStream.Seek((long)header.ExtentOffset, SeekOrigin.Begin);
+                                    outFileStream.Write(decompressedExtent, 0, decompressedExtent.Length);
+                                }
                             }
                         }
-
                         if (!verbose)
                             Console.Write(".");
                     }
