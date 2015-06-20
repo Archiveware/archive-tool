@@ -13,7 +13,7 @@ namespace ArchiveTool
         static ArchiveSetKeys Keys = new ArchiveSetKeys();
         static ArchiveFileExtentCopies CopiedExtents = new ArchiveFileExtentCopies();
 
-        public static void Scan(string inFile, string keyFile, string outPath, bool extract, bool verbose)
+        public static void Scan(string inFile, KeyParser explicitKey, string outPath, bool extract, bool verbose)
         {
             try
             {

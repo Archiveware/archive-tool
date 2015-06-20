@@ -88,6 +88,7 @@
     <Compile Include="ArchiveSliceProcessor.cs" />
     <Compile Include="CommandLineOptions.cs" />
     <Compile Include="ArchiveFileExtentHeader.cs" />
+    <Compile Include="KeyParser.cs" />
     <Compile Include="MediaPartition.cs" />
     <Compile Include="MediaPartitionHeader.cs" />
     <Compile Include="MediaProcessor.cs" />
