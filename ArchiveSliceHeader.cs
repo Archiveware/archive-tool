@@ -23,6 +23,7 @@ namespace ArchiveTool
         public bool IsValid;
 
         public static int HeaderLength = 71;
+        public static int DataPartitionCountOffset = 60;
 
         public static ArchiveSliceHeader TryRead(Stream fs, long offset)
         {

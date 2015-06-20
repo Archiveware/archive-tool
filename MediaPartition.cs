@@ -73,7 +73,7 @@ namespace ArchiveTool
                     if (header.SliceDataOffset != 0)
                     {
                         //Place slice coding details at correct location in slice header to allow easier recovery from missing medium #1
-                        fs2.Seek(60, SeekOrigin.Begin);
+                        fs2.Seek(ArchiveSliceHeader.DataPartitionCountOffset, SeekOrigin.Begin);
                         fs2.WriteByte(header.SliceDataChunks);
                         fs2.WriteByte(header.SliceCodingChunks);
                         fs2.WriteByte(header.SliceCodingWordSize);
