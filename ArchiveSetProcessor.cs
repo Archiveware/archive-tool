@@ -43,13 +43,15 @@ namespace ArchiveTool
                 }
 
                 if (extract)
+                {
                     CopiedExtents.WriteToDestination();
 
-                var di = new DirectoryInfo(Path.Combine(outPath, "SmallFileBundles"));
-                if (di.Exists && di.GetFiles().Any())
-                {
-                    foreach (var smallFileBundle in di.GetFiles())
-                        SmallFileBundleProcessor.Scan(smallFileBundle.FullName, Path.Combine(outPath, "ArchiveFiles"), extract, verbose);
+                    var di = new DirectoryInfo(Path.Combine(outPath, "SmallFileBundles"));
+                    if (di.Exists && di.GetFiles().Any())
+                    {
+                        foreach (var smallFileBundle in di.GetFiles())
+                            SmallFileBundleProcessor.Scan(smallFileBundle.FullName, Path.Combine(outPath, "ArchiveFiles"), extract, verbose);
+                    }
                 }
             }
             catch (Exception ex)
@@ -68,7 +70,7 @@ namespace ArchiveTool
             if (header != null)
             {
                 if (verbose)
-                    Console.WriteLine("  @{0,-16} {1} ({2}-{3}/{4}) valid: {5}", offset, header.FullName, header.ExtentOffset, header.ExtentLength, header.TotalLength, header.IsValid);
+                    Console.WriteLine("  @{0,-16} {1} ({2}-{3}/{4}) valid: {5}", offset, header.FullName, header.ExtentOffset, header.ExtentOffset + header.ExtentLength, header.TotalLength, header.IsValid);
 
                 if (header.IsValid)
                 {
