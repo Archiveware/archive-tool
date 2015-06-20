@@ -69,6 +69,15 @@ namespace ArchiveTool
                 {
                     fs2.Seek(header.SliceDataOffset, SeekOrigin.Begin);
                     fs2.Write(data.Buffer, 0, (int)header.DataLength);
+
+                    if (header.SliceDataOffset != 0)
+                    {
+                        //Place slice coding details at correct location in slice header to allow easier recovery from missing medium #1
+                        fs2.Seek(60, SeekOrigin.Begin);
+                        fs2.WriteByte(header.SliceDataChunks);
+                        fs2.WriteByte(header.SliceCodingChunks);
+                        fs2.WriteByte(header.SliceCodingWordSize);
+                    }
                 }
             }
 
@@ -88,7 +97,8 @@ namespace ArchiveTool
                 Buffer = new byte[bufferLength];
             }
 
-            public void CalculateCrc(int length, int chunkCount) {
+            public void CalculateCrc(int length, int chunkCount)
+            {
                 int chunkLength = length / chunkCount;
                 int chunkOffset = 0;
                 for (int i = 0; i < chunkCount; i++)
@@ -97,7 +107,7 @@ namespace ArchiveTool
                     chunkOffset += chunkLength;
                 }
 
-        }
+            }
         }
 
         private static ReadResultWrapper Read(Stream fs, long offset, int length, int chunkCount)

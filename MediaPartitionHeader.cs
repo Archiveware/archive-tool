@@ -13,6 +13,9 @@ namespace ArchiveTool
         public Guid SetIdentifier;
         public uint SliceSequence;
         public uint SliceDataOffset;
+        public byte SliceDataChunks;
+        public byte SliceCodingChunks;
+        public byte SliceCodingWordSize;
         public uint Sequence;
         private long HeaderOffset;
         public long DataOffset;
@@ -36,7 +39,7 @@ namespace ArchiveTool
             }
         }
 
-        public static int HeaderLength = 898;
+        public static int HeaderLength = 901;
 
         public static MediaPartitionHeader TryRead(Stream fs, long offset)
         {
@@ -54,18 +57,21 @@ namespace ArchiveTool
 
                 header.SliceSequence = BitConverter.ToUInt32(headerData, 48);
                 header.SliceDataOffset = BitConverter.ToUInt32(headerData, 52);
-                header.Sequence = BitConverter.ToUInt32(headerData, 56);
-                header.HeaderOffset = BitConverter.ToInt64(headerData, 60);
-                header.DataOffset = BitConverter.ToInt64(headerData, 68);
-                header.DataLength = BitConverter.ToUInt32(headerData, 76);
-                header.CodingOffset = BitConverter.ToInt64(headerData, 80);
-                header.CodingLength = BitConverter.ToUInt32(headerData, 88);
-                header.CodingChunks = headerData[92];
-                header.CodingWordSize = headerData[93];
+                header.SliceDataChunks = headerData[56];
+                header.SliceCodingChunks = headerData[57];
+                header.SliceCodingWordSize = headerData[58];
+                header.Sequence = BitConverter.ToUInt32(headerData, 59);
+                header.HeaderOffset = BitConverter.ToInt64(headerData, 63);
+                header.DataOffset = BitConverter.ToInt64(headerData, 71);
+                header.DataLength = BitConverter.ToUInt32(headerData, 79);
+                header.CodingOffset = BitConverter.ToInt64(headerData, 83);
+                header.CodingLength = BitConverter.ToUInt32(headerData, 91);
+                header.CodingChunks = headerData[95];
+                header.CodingWordSize = headerData[96];
 
                 for (int i = 0; i < header.ChunkCrc32.Length; i++)
                 {
-                    header.ChunkCrc32[i] = BitConverter.ToUInt32(headerData, 94 + (i * 4));
+                    header.ChunkCrc32[i] = BitConverter.ToUInt32(headerData, 97 + (i * 4));
                 }
                 header.Crc = BitConverter.ToUInt32(headerData, HeaderLength - 4);
 
