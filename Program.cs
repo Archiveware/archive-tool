@@ -13,7 +13,7 @@ namespace ArchiveTool
                 if (result.Value.ObjectType.ToLower().StartsWith("media"))
                     MediaProcessor.Scan(result.Value.InputFile, result.Value.OutputPath, result.Value.DoRepair, result.Value.DoExtract, result.Value.Verbose);
                 else if (result.Value.ObjectType.ToLower().StartsWith("slice"))
-                    ArchiveSliceProcessor.Scan(result.Value.InputFile, result.Value.OutputPath, result.Value.DoRepair, result.Value.DoExtract);
+                    ArchiveSliceProcessor.Process(result.Value.InputFile, result.Value.OutputPath, result.Value.DoRepair, result.Value.DoExtract, result.Value.Verbose);
                 else if (result.Value.ObjectType.ToLower().StartsWith("archive"))
                     ArchiveSetProcessor.Scan(result.Value.InputFile, result.Value.KeyFile, result.Value.OutputPath, result.Value.DoExtract, result.Value.Verbose);
                 else if (result.Value.ObjectType.ToLower().StartsWith("small"))
