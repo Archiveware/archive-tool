@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace ArchiveTool
 {
+    [Serializable]
     class ArchiveFileException : Exception
     {
         public string ConsoleMessage;
