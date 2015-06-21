@@ -25,7 +25,7 @@ namespace ArchiveTool
             if (!result.Errors.Any())
             {
                 string inputPath = result.Value.InputFile;
-                if (!inputPath.Contains(Path.DirectorySeparatorChar))
+                if (!string.IsNullOrEmpty(inputPath) && !inputPath.Contains(Path.DirectorySeparatorChar))
                     inputPath=Path.Combine(Environment.CurrentDirectory, inputPath);
 
                 string outputPath = result.Value.OutputPath;
