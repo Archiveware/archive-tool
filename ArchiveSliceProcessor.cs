@@ -34,12 +34,36 @@ namespace ArchiveTool
                     if (missingChunk <= dataChunkCount)
                         needsRepair = true;
 
-                if(needsRepair)
+                if (needsRepair)
                     if (!repair)
                         throw new ApplicationException("One or more missing data chunks; repair option must be enabled in order to continue");
                     else
                         if (!ReplaceMissingSliceChunks(inFile, dataChunkCount, codingChunkCount, codingWordSize, missingChunks, verbose))
                             throw new ApplicationException("Unexpected repair process failure");
+
+                using (var fs = new FileStream(inFile, FileMode.Open, FileAccess.Read))
+                {
+                    var header = ArchiveSliceHeader.TryRead(fs, 0);
+
+                    if (verbose && header != null)
+                        Console.WriteLine("  Header Valid: {0} Set ID: {1} Sequence: {2} Length: {3} Padding: {4}", header.IsValid, header.SetIdentifier, header.Sequence, header.DataLength, header.PaddingLength);
+
+                    if (header == null || !header.IsValid)
+                        throw new ApplicationException("Missing or invalid slice header");
+
+                    byte[] buffer = new byte[header.DataLength];
+                    fs.Read(buffer, 0, buffer.Length);
+
+                    if (Crc32C.Crc32CAlgorithm.Compute(buffer) != header.ContentCrc)
+                        throw new ApplicationException("Content CRC mismatch");
+
+                    if (extract)
+                        using (var outStream = new FileStream(Path.Combine(outPath, string.Format("{0}.ArchivewareSet", header.SetIdentifier)), FileMode.OpenOrCreate, FileAccess.Write))
+                        {
+                            outStream.Seek(header.DataLength * (header.Sequence - 1), SeekOrigin.Begin);
+                            outStream.Write(buffer, 0, buffer.Length);
+                        }
+                }
             }
             catch (Exception ex)
             {
@@ -51,7 +75,7 @@ namespace ArchiveTool
         {
             var missingChunks = new List<int>();
 
-            using (var fs = new FileStream(inFile, FileMode.Open))
+            using (var fs = new FileStream(inFile, FileMode.Open, FileAccess.Read))
             {
                 fs.Seek(ArchiveSliceHeader.DataPartitionCountOffset, SeekOrigin.Begin);
                 dataChunkCount = fs.ReadByte();
@@ -61,7 +85,7 @@ namespace ArchiveTool
                 if (dataChunkCount > 0 && codingChunkCount > 0)
                 {
                     int chunkSize = (int)(fs.Length / (dataChunkCount + codingChunkCount));
-                    int index = 1;
+                    int index = 0;
                     for (long offset = 0; offset < fs.Length; offset += chunkSize)
                     {
                         fs.Seek(offset, SeekOrigin.Begin);
@@ -111,7 +135,7 @@ namespace ArchiveTool
                 }
                 else
                 {
-                    if(verbose)
+                    if (verbose)
                         Console.WriteLine("FAILED: {0}", result);
                     return false;
                 }
