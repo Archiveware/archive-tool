@@ -9,7 +9,7 @@ namespace ArchiveTool
 {
     class CommandLineOptions
     {
-        [Option('o', "object", Required = true, HelpText = "The type of input file: Media, Slice, Archive or SmallFileBundle")]
+        [Option('t', "type", Required = true, HelpText = "The type of input file: Media, Slice, Archive or SmallFileBundle")]
         public string ObjectType { get; set; }
 
         [Option('i', "infile", Required = true, HelpText = "The input file to process: media file (e.g. ISO) or (partial) archive set, depending on selected operation. May contain wildcards.")]
@@ -24,7 +24,7 @@ namespace ArchiveTool
         [Option('v', "verbose", DefaultValue = false, HelpText = "Display technical details while processing")]
         public bool Verbose { get; set; }
 
-        [Option('p', "outpath", HelpText = "Output path to save any extracted files. If not specified, the current working directory will be used.")]
+        [Option('o', "outpath", HelpText = "Output path to save any extracted files. If not specified, the current working directory will be used.")]
         public string OutputPath { get; set; }
 
         [Option('k', "keyfile", HelpText = "File containing a (certificate with a) private key (PEM or PKCS#12/PFX format) authorized for the archive set")]
