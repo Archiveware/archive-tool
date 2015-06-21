@@ -6,12 +6,15 @@ using System.Threading.Tasks;
 using Org.BouncyCastle.Cms;
 using System.Security.Cryptography.X509Certificates;
 using Org.BouncyCastle.Security;
+using Org.BouncyCastle.Crypto;
 
 namespace ArchiveTool
 {
     class ArchiveSetKeys
     {
         Dictionary<UInt16, byte[]> Keys = new Dictionary<UInt16, byte[]>();
+
+        public KeyParser ExplicitKey;
 
         public bool GetKeyByIndex(int index, out byte[] key)
         {
@@ -39,18 +42,26 @@ namespace ArchiveTool
             if (enumerator.MoveNext())
             {
                 var recipient = (KeyTransRecipientInformation)enumerator.Current;
+                var subjectKeyIdentifier = string.Join(string.Empty, Array.ConvertAll(recipient.RecipientID.SubjectKeyIdentifier, b => b.ToString("x2"))).Substring(4);
+                
+                AsymmetricCipherKeyPair keyPair = null;
+                if (ExplicitKey != null && ExplicitKey.SubjectKeyIdentifier != null && ExplicitKey.SubjectKeyIdentifier.Equals(subjectKeyIdentifier))
+                    keyPair = ExplicitKey.KeyPair;
+
                 var myCert = MatchingCertFromLocalStore(recipient.RecipientID.SubjectKeyIdentifier);
-                if (myCert != null)
+                if (myCert != null || keyPair !=null)
                 {
-                    var keyPair = DotNetUtilities.GetRsaKeyPair((System.Security.Cryptography.RSA)myCert.PrivateKey);
+                    if (keyPair == null)
+                        keyPair = DotNetUtilities.GetRsaKeyPair((System.Security.Cryptography.RSA)myCert.PrivateKey);
+                    
                     byte[] keySet;
                     try
                     {
                         keySet = recipient.GetContent(keyPair.Private);
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
-                        Console.WriteLine("Unexpected error: unable to decrypt embedded PKCS#7 message (containing archive set keys) using certificate '{0}'", myCert.Subject);
+                        Console.WriteLine("Unexpected error: unable to decrypt embedded PKCS#7 message (containing archive set keys): {0}", ex.Message);
                         return;
                     }
 

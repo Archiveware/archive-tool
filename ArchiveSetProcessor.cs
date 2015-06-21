@@ -21,6 +21,8 @@ namespace ArchiveTool
                 if (extract && !Directory.Exists(outPath))
                     Directory.CreateDirectory(outPath);
 
+                Keys.ExplicitKey = explicitKey;
+
                 using (var fs = new FileStream(inFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 {
                     Console.WriteLine("Scanning {0} for archive file headers", inFile);
