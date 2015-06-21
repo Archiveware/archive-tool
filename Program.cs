@@ -24,22 +24,29 @@ namespace ArchiveTool
 
             if (!result.Errors.Any())
             {
+                string inputPath = result.Value.InputFile;
+                if (!inputPath.Contains(Path.DirectorySeparatorChar))
+                    inputPath=Path.Combine(Environment.CurrentDirectory, inputPath);
+
                 string outputPath = result.Value.OutputPath;
                 if (string.IsNullOrEmpty(outputPath))
                     outputPath = Environment.CurrentDirectory;
+
+                if (!outputPath.Contains(Path.DirectorySeparatorChar))
+                    outputPath = Path.Combine(Environment.CurrentDirectory, outputPath);
 
                 KeyParser explicitKey = null;
                 if (!string.IsNullOrEmpty(result.Value.KeyFile))
                     explicitKey = new KeyParser(result.Value.KeyFile);
 
                 if (result.Value.ObjectType.ToLower().StartsWith("media"))
-                    WildcardExpander(result.Value.InputFile, file => MediaProcessor.Scan(file, outputPath, result.Value.DoRepair, result.Value.DoExtract, result.Value.Verbose));
+                    WildcardExpander(inputPath, file => MediaProcessor.Scan(file, outputPath, result.Value.DoRepair, result.Value.DoExtract, result.Value.Verbose));
                 else if (result.Value.ObjectType.ToLower().StartsWith("slice"))
-                    WildcardExpander(result.Value.InputFile, file => ArchiveSliceProcessor.Process(file, outputPath, result.Value.DoRepair, result.Value.DoExtract, result.Value.Verbose));
+                    WildcardExpander(inputPath, file => ArchiveSliceProcessor.Process(file, outputPath, result.Value.DoRepair, result.Value.DoExtract, result.Value.Verbose));
                 else if (result.Value.ObjectType.ToLower().StartsWith("archive"))
-                    WildcardExpander(result.Value.InputFile, file => ArchiveSetProcessor.Scan(file, explicitKey, outputPath, result.Value.DoExtract, result.Value.Verbose));
+                    WildcardExpander(inputPath, file => ArchiveSetProcessor.Scan(file, explicitKey, outputPath, result.Value.DoExtract, result.Value.Verbose));
                 else if (result.Value.ObjectType.ToLower().StartsWith("small"))
-                    WildcardExpander(result.Value.InputFile, file => SmallFileBundleProcessor.Scan(file, outputPath, result.Value.DoExtract, result.Value.Verbose));
+                    WildcardExpander(inputPath, file => SmallFileBundleProcessor.Scan(file, outputPath, result.Value.DoExtract, result.Value.Verbose));
                 else
                 {
                     Console.WriteLine("Invalid object type: should be Media, Slice, Archive or SmallFileBundle");
