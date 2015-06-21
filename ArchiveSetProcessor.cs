@@ -107,7 +107,7 @@ namespace ArchiveTool
                             var inHandle = GCHandle.Alloc(plaintextExtent, GCHandleType.Pinned);
                             var outHandle = GCHandle.Alloc(decompressedExtent, GCHandleType.Pinned);
 
-                            int byteCount = NativeCode.Decompress(inHandle.AddrOfPinnedObject(), outHandle.AddrOfPinnedObject(), (int)header.CompressedDataLength, (int)header.UncompressedDataLength);
+                            int byteCount = NativeMethods.Decompress(inHandle.AddrOfPinnedObject(), outHandle.AddrOfPinnedObject(), (int)header.CompressedDataLength, (int)header.UncompressedDataLength);
                             outHandle.Free();
                             inHandle.Free();
 

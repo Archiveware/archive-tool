@@ -119,7 +119,7 @@ namespace ArchiveTool
                 var codingHandle = GCHandle.Alloc(coding, GCHandleType.Pinned);
 
                 erasures.Add(-1); //End of erasure list
-                int result = NativeCode.Decode(dataChunkCount, codingChunkCount, codingWordSize, dataHandle.AddrOfPinnedObject(), codingHandle.AddrOfPinnedObject(), chunkSize, erasures.ToArray());
+                int result = NativeMethods.Decode(dataChunkCount, codingChunkCount, codingWordSize, dataHandle.AddrOfPinnedObject(), codingHandle.AddrOfPinnedObject(), chunkSize, erasures.ToArray());
 
                 codingHandle.Free();
                 dataHandle.Free();

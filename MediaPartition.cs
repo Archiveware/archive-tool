@@ -40,7 +40,7 @@ namespace ArchiveTool
                 var dataHandle = GCHandle.Alloc(data.Buffer, GCHandleType.Pinned);
                 var codingHandle = GCHandle.Alloc(coding.Buffer, GCHandleType.Pinned);
 
-                int result = NativeCode.Decode(100, header.CodingChunks, header.CodingWordSize, dataHandle.AddrOfPinnedObject(), codingHandle.AddrOfPinnedObject(),
+                int result = NativeMethods.Decode(100, header.CodingChunks, header.CodingWordSize, dataHandle.AddrOfPinnedObject(), codingHandle.AddrOfPinnedObject(),
                                                 (int)(header.DataLength / 100), erasures.ToArray());
 
                 if (verbose)

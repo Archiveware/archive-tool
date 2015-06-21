@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ArchiveTool
 {
-    class NativeCode
+    class NativeMethods
     {
         [DllImport("NativeCode.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Decode(int k, int m, int w, IntPtr data, IntPtr coding, int blockSize, int[] erasures);
