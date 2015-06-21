@@ -1,4 +1,4 @@
-The MIT License (MIT)
+--- archive-tool is licensed under the MIT License (MIT) ---
 
 Copyright (c)2015 Archive Disk B.V.
 
@@ -19,3 +19,35 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+
+--- Third Party Licenses ---
+
+The NativeCode library which is included as part of archive-tool includes
+code from the following sources and using the following licenses:
+
+Jerasure - A C/C++ Library for a Variety of Reed-Solomon and RAID-6 Erasure Coding Techniques
+	http://web.eecs.utk.edu/~plank/plank/papers/Jerasure-1.2A.tar
+	Copyright (c)2011, James S. Plank
+	New BSD License
+
+LZ4 - Fast LZ compression algorithm
+	https://github.com/Cyan4973/lz4
+	Copyright (c)2011-2015, Yann Collet
+	BSD 2-Clause License
+
+The archive-tool project contains NuGet references to the following packages:
+
+Bouncy Castle C# API
+	http://www.bouncycastle.org/csharp/
+	Copyright (c)2013 Legion of the Bouncy Castle Inc.
+	Adapted MIT X11 License
+
+Command Line Parser Library 
+	https://github.com/cosmo0/commandline
+	Copyright (c)2005-2013 Giacomo Stelluti Scala & Contributors
+	MIT License
+
+CRC-32C (Castagnoli) for C++ and .NET
+	https://crc32c.angeloflogic.com/
+	BSD License
