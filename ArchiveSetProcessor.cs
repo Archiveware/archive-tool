@@ -124,7 +124,7 @@ namespace ArchiveTool
                                 if (!Directory.Exists(Path.GetDirectoryName(filePath)))
                                     Directory.CreateDirectory(Path.GetDirectoryName(filePath));
 
-                                using (var outFileStream = new FileStream(filePath, FileMode.Create))
+                                using (var outFileStream = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.Write))
                                 {
                                     outFileStream.Seek((long)header.ExtentOffset, SeekOrigin.Begin);
                                     outFileStream.Write(decompressedExtent, 0, decompressedExtent.Length);
