@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Security.Cryptography;
 
 namespace ArchiveTool
 {
@@ -162,10 +163,16 @@ namespace ArchiveTool
             return true;
         }
 
-        /// <summary>Helper function for <see cref="Scan"/>: checks the SHA-384 hash of single-extent as well as multi-extent files (incrementally until the final extent is encountered).</summary>
-        internal static void VerifyExtent(ArchiveFileExtentHeader header, byte[] extent)
+        /// <summary>Helper function for <see cref="Scan"/>: to calculate the SHA-384 hash of a file extent.</summary>
+        public static void VerifyExtent(ArchiveFileExtentHeader header, byte[] extent)
         {
-            //TODO
+            using (SHA384Cng cng = new SHA384Cng())
+            {
+                cng.TransformFinalBlock(extent, 0, extent.Length);
+
+                if (!cng.Hash.SequenceEqual(header.DataHash))
+                    throw new ArchiveFileException("SHA384 mismatch");
+            }
         }
 
     }
