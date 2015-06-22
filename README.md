@@ -21,6 +21,9 @@ When using MonoDevelop, or a version of Visual Studio which does not include C++
 
 When all files all built, put the binaries anywhere in your PATH for easy access.	
 
+Usage
+-----
+
 ### Obtaining media images
 
 Copy the Archiveware container files from the Blu-ray disks, tapes or Petablock disks you want to restore to a temporary folder. *If read errors occur, copy as much data as possible, zeroing out truly unreadable parts of files*.
