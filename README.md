@@ -33,7 +33,7 @@ During the archiving process, Archiveware archive sets are first divided into *s
 
 By repeatedly invoking `archive-tool` on each media image (which can be automated by specifying a wildcard), all slices that make up the archive set can be exported. For this test, let's skip image #1 and start with the second image:
 
-~~~ sh
+~~~
 $ archive-tool.exe -t media -i TestData-0002.iso -x
 Scanning TestData-0002.iso for media partition headers
 ..............
@@ -45,7 +45,7 @@ You'll now have 7 `.slice` files in your working folder, each containing the sec
 
 Before extracting media image #3, let's introduce some damage to see how that works:
 
-~~~
+~~~ csharp
 using System;
 using System.IO;
 
@@ -78,7 +78,7 @@ namespace IsoDamager
 
 After running this against TestData-0003.iso (or simply stomping on the file a bit with your favorite hex editor: do note that the first 512KB or so are UDF data structures that `archive-tool` ignores), the export will initially fail with output similar to the following:
 
-~~~ sh
+~~~
 $ archive-tool.exe -t media -i TestData-0003.iso -x
 Scanning TestData-0002.iso for media partition headers
 ..............
@@ -96,7 +96,7 @@ To complete the slice extraction, run `archive-tool` against TestData-0004.iso a
 
 Once you have a collection of slice files, you can combine these into an archive set. If all data is undamaged, this is a rather simple copy operation, but in case of incomplete slices (as will be the case if you didn't extract TestData-0001.iso in the previous step), repairs will be required first:
 
-~~~ sh
+~~~
 $ archive-tool.exe -t slice -i *.slice -r -x
 Processing / Repairing / Extracting archive slice c0fddea4-d1f1-4c7a-9add-e3f050487c10-0000000001.slice
  ...
@@ -110,19 +110,19 @@ After successful completion of this process, you will have a single archive set 
 To extract files from an archive set, you'll also need a private key authorized for this particular set. This private key can be supplied in various ways:
 * By importing the associated certificate into the Windows or Mono certificate store using certmgr
 * By supplying the private key file using the `-k` command line option. This file should be in one of the following formats:
-** Unencrypted PEM (the file most likely contains the line `-----BEGIN RSA PRIVATE KEY-----`, but no header options that hint at encryption). If your PEM key file happens to be encrypted, use OpenSSL to [remove the pass phrase](http://openssl.org/docs/apps/rsa.html) first
-** PKCS#12 a.k.a. PFX: such files are almost always encrypted, and `archive-tool` will prompt you for the password (the file extension should be *.pfx* for this to work)
+  * Unencrypted PEM (the file most likely contains the line `-----BEGIN RSA PRIVATE KEY-----`, but no header options that hint at encryption). If your PEM key file happens to be encrypted, use OpenSSL to [remove the pass phrase](http://openssl.org/docs/apps/rsa.html) first
+  * PKCS#12 a.k.a. PFX: such files are almost always encrypted, and `archive-tool` will prompt you for the password (the file extension should be *.pfx* for this to work)
 
 For the archive set contained in the TestData-* ISO files, key files in both formats are provided inside the file `Archiveware.ReadMe.ZIP`, which is present in each image.
 
 After obtaining this key, extracting the archive files is straightforward:
 
-~~~ sh
+~~~
 $ archive-tool.exe -t archive -i c0fddea4-d1f1-4c7a-9add-e3f050487c10.ArchivewareSet -x -k TestData.pfx
 PFX password: ****
 Using private key from certificate 'O=FOR TESTING PURPOSES ONLY - NO LIABILITY ACCEPTED, CN=DO NOT TRUST - Archiveware Test Certificate'
 Loaded private key with ID c87dee3cf16ef9af1fa0a19b314be032d9d4e37b from TestData.pfx
-Scanning C:\tmp\SmallExport\c0fddea4-d1f1-4c7a-9add-e3f050487c10.ArchivewareSet for archive file headers
+Scanning c0fddea4-d1f1-4c7a-9add-e3f050487c10.ArchivewareSet for archive file headers
 ................
 ~~~
 
