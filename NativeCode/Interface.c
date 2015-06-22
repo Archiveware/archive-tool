@@ -2,7 +2,13 @@
 #include "jerasure.h"
 #include "reed_sol.h"
 
-__declspec(dllexport) int Decode(int k, int m, int w, char *datablock, char *codingblock, int blocksize, int erasures[]) {
+#ifdef _WIN32
+	#define EXPORT __declspec(dllexport)
+#else
+	#define EXPORT
+#endif
+
+EXPORT int Decode(int k, int m, int w, char *datablock, char *codingblock, int blocksize, int erasures[]) {
 	int i;
 	int *matrix = reed_sol_vandermonde_coding_matrix(k, m, w);
 	char **data = (char **)malloc(sizeof(char*)*k);
@@ -28,6 +34,6 @@ __declspec(dllexport) int Decode(int k, int m, int w, char *datablock, char *cod
 	return i;
 }
 
-__declspec(dllexport) int Decompress(const char *source, char *dest, int compressedSize, int maxDecompressedSize){
+EXPORT int Decompress(const char *source, char *dest, int compressedSize, int maxDecompressedSize){
 	return LZ4_decompress_safe(source, dest, compressedSize, maxDecompressedSize);
 }
