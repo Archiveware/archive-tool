@@ -27,41 +27,50 @@ namespace ArchiveTool
                 return false;
             }
 
-            if (badDataChunks.Any() && repair)
-            {
-                if (verbose)
-                    Console.Write("Repairing {0} data chunks... ", badDataChunks.Count());
-
-                var erasures = badDataChunks.ToList();
-                foreach (var badCodingChunkIndex in badCodingChunks)
-                    erasures.Add(100 + badCodingChunkIndex);
-                erasures.Add(-1); //End-of-list marker
-
-                var dataHandle = GCHandle.Alloc(data.Buffer, GCHandleType.Pinned);
-                var codingHandle = GCHandle.Alloc(coding.Buffer, GCHandleType.Pinned);
-
-                int result = NativeMethods.Decode(100, header.CodingChunks, header.CodingWordSize, dataHandle.AddrOfPinnedObject(), codingHandle.AddrOfPinnedObject(),
-                                                (int)(header.DataLength / 100), erasures.ToArray());
-
-                if (verbose)
-                    Console.WriteLine(result == 0 ? "OK" : string.Format("FAILED ({0})", result));
-                else
-                    Console.Write(result == 0 ? "r" : "x");
-
-                codingHandle.Free();
-                dataHandle.Free();
-
-                data.CalculateCrc((int)header.DataLength, 100);
-                badDataChunks = CrcMismatches(header.ChunkCrc32.Take(100).ToArray(), data.Crc);
-                if (badDataChunks.Any())
+            if (badDataChunks.Any())
+                if (!repair)
                 {
                     if (verbose)
-                        Console.WriteLine("Repair unexpectedly failed: {0} bad data chunks left!", badDataChunks.Count());
+                        Console.WriteLine("{0} data chunks damaged: --repair option needs to be specified to continue", badDataChunks.Count());
                     else
-                        Console.Write("!");
+                        Console.Write("d");
                     return false;
                 }
-            }
+                else
+                {
+                    if (verbose)
+                        Console.Write("Repairing {0} data chunks... ", badDataChunks.Count());
+
+                    var erasures = badDataChunks.ToList();
+                    foreach (var badCodingChunkIndex in badCodingChunks)
+                        erasures.Add(100 + badCodingChunkIndex);
+                    erasures.Add(-1); //End-of-list marker
+
+                    var dataHandle = GCHandle.Alloc(data.Buffer, GCHandleType.Pinned);
+                    var codingHandle = GCHandle.Alloc(coding.Buffer, GCHandleType.Pinned);
+
+                    int result = NativeMethods.Decode(100, header.CodingChunks, header.CodingWordSize, dataHandle.AddrOfPinnedObject(), codingHandle.AddrOfPinnedObject(),
+                                                    (int)(header.DataLength / 100), erasures.ToArray());
+
+                    if (verbose)
+                        Console.WriteLine(result == 0 ? "OK" : string.Format("FAILED ({0})", result));
+                    else
+                        Console.Write(result == 0 ? "r" : "x");
+
+                    codingHandle.Free();
+                    dataHandle.Free();
+
+                    data.CalculateCrc((int)header.DataLength, 100);
+                    badDataChunks = CrcMismatches(header.ChunkCrc32.Take(100).ToArray(), data.Crc);
+                    if (badDataChunks.Any())
+                    {
+                        if (verbose)
+                            Console.WriteLine("Repair unexpectedly failed: {0} bad data chunks left!", badDataChunks.Count());
+                        else
+                            Console.Write("!");
+                        return false;
+                    }
+                }
 
             if (extract)
             {
