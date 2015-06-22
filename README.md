@@ -83,7 +83,7 @@ After running this against TestData-0003.iso (or simply stomping on the file a b
 
 ~~~
 $ archive-tool.exe -t media -i TestData-0003.iso -x
-Scanning TestData-0002.iso for media partition headers
+Scanning TestData-0003.iso for media partition headers
 ..............
 Validating / Extracting data associated with 14 headers
 dddddddddddddd
@@ -130,3 +130,29 @@ Scanning c0fddea4-d1f1-4c7a-9add-e3f050487c10.ArchivewareSet for archive file he
 ~~~
 
 Extracted files can be found in the `ArchiveFiles` subdirectory of your working directory (or the output path if you specified it on the command line). All extracted files are validated using a SHA-384 hash, guaranteeing that any extracted data is in fact identical to that in the originally archived files.
+
+### Extracting small file bundles
+
+To improve efficiency, Archiveware stores small files (<64 KB) in small file bundles. These bundles are extracted as part of the main archive extraction process, but if you every have one lying around you need to extract manually, `archive-tool` can be used for this as well:
+
+~~~
+$ archive-tool.exe -t small -i SmallFileBundle0000 -x
+....
+~~~
+
+Usage Summary
+-------------
+
+First extract `.slice` files from all available media images, automatically performing any required repairs:
+
+    archive-tool.exe -t media -i *.iso -x -r
+
+Then convert the `.slice` files to a single `.ArchiveSet` file, again automatically repairing any non-fatal damage:
+
+    archive-tool.exe -t slice -i *.slice -x -r
+
+Finally, extract the originally archived files from the `.ArchiveSet` file, using a private key file you provide:
+
+    archive-tool.exe -t archive -i *.ArchiveSet -x -k mycert.pfx
+
+The extracted source files will be stored in the `ArchiveFiles` subdirectory.
