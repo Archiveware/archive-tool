@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 
 namespace ArchiveTool
 {
@@ -11,6 +12,9 @@ namespace ArchiveTool
         public static void Main(string[] args)
         {
             CommandLine.ParserResult<ArchiveTool.CommandLineOptions> result = null;
+
+            if (Assembly.GetExecutingAssembly().GetName().ProcessorArchitecture != ProcessorArchitecture.Amd64)
+                Console.WriteLine("WARNING: This version of archive-tool was not created using the x64 build target, and will most likely run out of memory when extracting files!");
 
             try
             {
