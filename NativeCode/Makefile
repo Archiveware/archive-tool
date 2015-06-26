@@ -1,11 +1,11 @@
 CC=gcc
-CFLAGS=-fpic -std=c99
+CFLAGS=-fpic -std=c99 -lpthread
 
-libNativeCode.so: galois.o  Interface.o  jerasure.o  lz4.o  reed_sol.o
-	$(CC) -shared -o libNativeCode.so galois.o  Interface.o  jerasure.o  lz4.o  reed_sol.o
+libNativeCode.so: crc32c.o galois.o  Interface.o  jerasure.o  lz4.o  reed_sol.o
+	$(CC) -shared -o libNativeCode.so crc32c.o galois.o Interface.o jerasure.o lz4.o reed_sol.o
 
 %.o: %.c 
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 clean:
-	rm libNativeCode.so galois.o  Interface.o  jerasure.o  lz4.o  reed_sol.o
+	rm libNativeCode.so crc32c.o galois.o Interface.o jerasure.o lz4.o reed_sol.o
