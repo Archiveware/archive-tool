@@ -36,6 +36,11 @@ LZ4 - Fast LZ compression algorithm
 	Copyright (c)2011-2015, Yann Collet
 	BSD 2-Clause License
 
+crc32c.c -- compute CRC-32C using the Intel crc32 instruction
+    http://stackoverflow.com/questions/17645167/implementing-sse-4-2s-crc32c-in-software
+	Copyright (c)2013 Mark Adler
+	https://creativecommons.org/licenses/by-sa/3.0/
+
 The archive-tool project contains NuGet references to the following packages:
 
 Bouncy Castle C# API
@@ -51,3 +56,4 @@ Command Line Parser Library
 CRC-32C (Castagnoli) for C++ and .NET
 	https://crc32c.angeloflogic.com/
 	BSD License
+
