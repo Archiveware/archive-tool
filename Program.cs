@@ -28,7 +28,7 @@ namespace ArchiveTool
 
             try
             {
-                long test = NativeMethods.Test(new byte[] { 0x78, 0x56, 0x34, 0x12 });
+                int test = NativeMethods.Test(new byte[] { 0x78, 0x56, 0x34, 0x12 });
                 if (test != 0x12345678)
                     throw new ApplicationException("endianness mismatch");
             }
@@ -43,9 +43,19 @@ namespace ArchiveTool
                 if (!string.IsNullOrEmpty(inputPath) && !inputPath.Contains(Path.DirectorySeparatorChar))
                     inputPath = Path.Combine(Environment.CurrentDirectory, inputPath);
 
+                if (MatchingFileCount(inputPath) == 0)
+                {
+                    Console.WriteLine("Specified input file(s) could not be found");
+                    Environment.Exit(1);
+                }
+
                 string outputPath = result.Value.OutputPath;
                 if (string.IsNullOrEmpty(outputPath))
+                {
+                    if (result.Value.DoExtract)
+                        Console.WriteLine("Output path not specified: defaulting to current directory");
                     outputPath = Environment.CurrentDirectory;
+                }
 
                 if (!outputPath.Contains(Path.DirectorySeparatorChar))
                     outputPath = Path.Combine(Environment.CurrentDirectory, outputPath);
@@ -77,5 +87,10 @@ namespace ArchiveTool
                 action.Invoke(file.FullName);
         }
 
+        internal static int MatchingFileCount(string path)
+        {
+            var di = new DirectoryInfo(Path.GetDirectoryName(path));
+            return di.GetFiles(Path.GetFileName(path)).Count();
+        }
     }
 }
