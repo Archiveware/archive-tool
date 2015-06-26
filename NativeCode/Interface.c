@@ -41,7 +41,7 @@ EXPORT int Decompress(const char *source, char *dest, int compressedSize, int ma
 
 EXPORT int Test(char bytes[]) {	
 	union bytes_to_int_u {
-		char bytes[];
+		char bytes[4];
 		int result;
 	} bytes_to_int;
 

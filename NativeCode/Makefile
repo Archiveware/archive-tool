@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-fpic
+CFLAGS=-fpic -std=c99
 
 libNativeCode.so: galois.o  Interface.o  jerasure.o  lz4.o  reed_sol.o
 	$(CC) -shared -o libNativeCode.so galois.o  Interface.o  jerasure.o  lz4.o  reed_sol.o
