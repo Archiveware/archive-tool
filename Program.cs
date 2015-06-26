@@ -13,9 +13,6 @@ namespace ArchiveTool
         {
             CommandLine.ParserResult<ArchiveTool.CommandLineOptions> result = null;
 
-            if (Assembly.GetExecutingAssembly().GetName().ProcessorArchitecture != ProcessorArchitecture.Amd64)
-                Console.WriteLine("WARNING: This version of archive-tool was not created using the x64 build target, and will most likely run out of memory when extracting files!");
-
             try
             {
                 result = CommandLine.Parser.Default.ParseArguments<CommandLineOptions>(args);
@@ -26,11 +23,25 @@ namespace ArchiveTool
                 Environment.Exit(1);
             }
 
+            if (Assembly.GetExecutingAssembly().GetName().ProcessorArchitecture != ProcessorArchitecture.Amd64)
+                Console.WriteLine("WARNING: This version of archive-tool was not created using the x64 build target, and will most likely run out of memory when extracting files!");
+
+            try
+            {
+                long test = NativeMethods.Test(new byte[] { 0x78, 0x56, 0x34, 0x12 });
+                if (test != 0x12345678)
+                    throw new ApplicationException("endianness mismatch");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("WARNING: Error invoking native code library: {0}. This will cause most archive-tool functionality to fail!", ex.Message);
+            }
+
             if (!result.Errors.Any())
             {
                 string inputPath = result.Value.InputFile;
                 if (!string.IsNullOrEmpty(inputPath) && !inputPath.Contains(Path.DirectorySeparatorChar))
-                    inputPath=Path.Combine(Environment.CurrentDirectory, inputPath);
+                    inputPath = Path.Combine(Environment.CurrentDirectory, inputPath);
 
                 string outputPath = result.Value.OutputPath;
                 if (string.IsNullOrEmpty(outputPath))
