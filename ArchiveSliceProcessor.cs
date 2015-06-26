@@ -54,7 +54,7 @@ namespace ArchiveTool
                     byte[] buffer = new byte[header.DataLength];
                     fs.Read(buffer, 0, buffer.Length);
 
-                    if (Crc32C.Crc32CAlgorithm.Compute(buffer) != header.ContentCrc)
+                    if (Crc32CWrapper.ComputeCrc32C(buffer, 0, buffer.Length) != header.ContentCrc)
                         throw new ApplicationException("Content CRC mismatch");
 
                     if (extract)

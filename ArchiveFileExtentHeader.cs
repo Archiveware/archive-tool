@@ -61,7 +61,7 @@ namespace ArchiveTool
                 Array.ConstrainedCopy(headerData, 136, header.FullNameUtf8Bytes, 0, header.FullNameLength);
                 header.Crc = BitConverter.ToUInt32(headerData, 136 + header.FullNameLength);
 
-                header.IsValid = headerData.Take(8).SequenceEqual(Signature) && (header.Crc == Crc32C.Crc32CAlgorithm.Compute(headerData, 0, 136 + header.FullNameLength));
+                header.IsValid = headerData.Take(8).SequenceEqual(Signature) && (header.Crc == Crc32CWrapper.ComputeCrc32C(headerData, 0, 136 + header.FullNameLength));
                 header.FullName = UTF8Encoding.UTF8.GetString(header.FullNameUtf8Bytes);
                 header.HeaderLength = (UInt16)(140 + header.FullNameLength + 1);
 

@@ -83,7 +83,7 @@ namespace ArchiveTool
 
                     try
                     {
-                        if (header.EncryptedDataCrc != Crc32C.Crc32CAlgorithm.Compute(encryptedExtent, 0, encryptedExtent.Length))
+                        if (header.EncryptedDataCrc != Crc32CWrapper.ComputeCrc32C(encryptedExtent, 0, encryptedExtent.Length))
                             throw new ArchiveFileException("encrypted data CRC mismatch");
 
                         if (!Keys.GetKeyByIndex(header.KeyIndex, out key))

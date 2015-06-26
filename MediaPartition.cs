@@ -112,7 +112,7 @@ namespace ArchiveTool
                 int chunkOffset = 0;
                 for (int i = 0; i < chunkCount; i++)
                 {
-                    Crc[i] = Crc32C.Crc32CAlgorithm.Compute(Buffer, chunkOffset, chunkLength);
+                    Crc[i] = Crc32CWrapper.ComputeCrc32C(Buffer, chunkOffset, chunkLength);
                     chunkOffset += chunkLength;
                 }
 

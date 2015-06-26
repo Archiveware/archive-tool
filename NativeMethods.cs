@@ -17,5 +17,8 @@ namespace ArchiveTool
 
         [DllImport("NativeCode.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Test(byte[] testBytes);
+
+        [DllImport("NativeCode.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "crc32c")]
+        public static extern uint Crc32C(uint crc, IntPtr data, int length);
     }
 }

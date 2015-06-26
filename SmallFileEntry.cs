@@ -51,7 +51,7 @@ namespace ArchiveTool
 
                 fs.Seek(initialStreamPosition + (24 + FullNameLength + DataLength + 1), SeekOrigin.Begin);
 
-                if (Crc32C.Crc32CAlgorithm.Compute(Data) != DataCrc)
+                if (Crc32CWrapper.ComputeCrc32C(Data, 0, Data.Length) != DataCrc)
                     throw new ApplicationException("CRC mismatch");
 
                 return true;

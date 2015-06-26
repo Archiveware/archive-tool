@@ -48,7 +48,7 @@ namespace ArchiveTool
                 header.ContentCrc = BitConverter.ToUInt32(headerData, 63);
                 header.Crc = BitConverter.ToUInt32(headerData, 67);
 
-                header.IsValid = headerData.Take(32).SequenceEqual(Signature) && (header.Crc == Crc32C.Crc32CAlgorithm.Compute(headerData, 0, HeaderLength - 4));
+                header.IsValid = headerData.Take(32).SequenceEqual(Signature) && (header.Crc == Crc32CWrapper.ComputeCrc32C(headerData, 0, HeaderLength - 4));
 
                 return header;
             }

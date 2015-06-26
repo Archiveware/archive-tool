@@ -75,7 +75,7 @@ namespace ArchiveTool
                 }
                 header.Crc = BitConverter.ToUInt32(headerData, HeaderLength - 4);
 
-                header.IsValid = headerData.Take(32).SequenceEqual(Signature) && (header.Crc == Crc32C.Crc32CAlgorithm.Compute(headerData, 0, HeaderLength - 4));
+                header.IsValid = headerData.Take(32).SequenceEqual(Signature) && (header.Crc == Crc32CWrapper.ComputeCrc32C(headerData, 0, HeaderLength - 4));
 
                 //If header is not at original location, adjust data offsets accordingly (media may be truncated...)
                 header.DataOffset += (offset - header.HeaderOffset); 
