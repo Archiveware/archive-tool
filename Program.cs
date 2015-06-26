@@ -64,13 +64,14 @@ namespace ArchiveTool
                 if (!string.IsNullOrEmpty(result.Value.KeyFile))
                     explicitKey = new KeyParser(result.Value.KeyFile);
 
-                if (result.Value.ObjectType.ToLower().StartsWith("media"))
+                var objectType = string.IsNullOrEmpty(result.Value.ObjectType) ? "" : result.Value.ObjectType.ToLower();
+                if (objectType.StartsWith("media"))
                     WildcardExpander(inputPath, file => MediaProcessor.Scan(file, outputPath, result.Value.DoRepair, result.Value.DoExtract, result.Value.Verbose));
-                else if (result.Value.ObjectType.ToLower().StartsWith("slice"))
+                else if (objectType.StartsWith("slice"))
                     WildcardExpander(inputPath, file => ArchiveSliceProcessor.Process(file, outputPath, result.Value.DoRepair, result.Value.DoExtract, result.Value.Verbose));
-                else if (result.Value.ObjectType.ToLower().StartsWith("archive"))
+                else if (objectType.StartsWith("archive"))
                     WildcardExpander(inputPath, file => ArchiveSetProcessor.Scan(file, explicitKey, outputPath, result.Value.DoExtract, result.Value.Verbose));
-                else if (result.Value.ObjectType.ToLower().StartsWith("small"))
+                else if (objectType.StartsWith("small"))
                     WildcardExpander(inputPath, file => SmallFileBundleProcessor.Scan(file, outputPath, result.Value.DoExtract, result.Value.Verbose));
                 else
                 {
