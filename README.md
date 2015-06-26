@@ -10,7 +10,7 @@ Installation
 
 Requirements/Dependencies:
 * A 64-bit OS: due to the use of large file buffers (up to 2 GB), this tool will not work on systems with a small address space;
-* The Microsoft .NET Framework, version 4.5 or higher on Windows, OS X or Linux. Either the official Microsoft CLR or Mono should work;
+* The Microsoft .NET Framework, version 4.5 or higher on Windows, OS X or Linux. Either the official [Microsoft CLR](https://github.com/dotnet/corefx) or [Mono](http://www.mono-project.com/download/) should work;
 * Three packages from the [NuGet Gallery](https://www.nuget.org/). These packages are included with the binary distribution found in `Archiveware.Readme.ZIP` on most archive media created with Archiveware, and will be automatically downloaded (by Visual Studio or MonoDevelop) when building from source.
 
 ### Building from source
@@ -19,7 +19,17 @@ Using either Visual Studio or MonoDevelop is highly recommended: simply opening 
 
 When using MonoDevelop, or a version of Visual Studio which does not include C++ support, you will need to build the native code library separately. Any C compiler, including `gcc` should work for this: see the `Makefile` included in the `NativeCode` directory for details.   
 
-When all files all built, put the binaries anywhere in your PATH for easy access.	
+If you're not using MonoDevelop or Visual Studio:
+* Create a `bin` subdirectory under the directory containing the source files
+* Extract the DLL files from `Archiveware.Readme.ZIP` (or the most [recent release found on GitHub](https://github.com/Archiveware/archive-tool/releases)) into the `bin` subdirectory
+  * `BouncyCastle.Crypto.dll`, `CommandLine.dll`, `Crc32C.NET.dll` and `NativeCode.dll`
+* Run `xbuild` in the source file directory to invoke the Mono build utility
+* If not using Windows:
+  * Copy `archive-tool.exe.config` to the `bin` folder
+  * Change into the `NativeCode` directory and invoke `make` followed by `make install`
+* Your `bin` subdirectory should now contain `archive-tool.exe`, the DLL files listed above, and, if not using Windows, `libNativeCode.so` as well as `archive-tool.exe.config` (which maps the imports from the Windows DLL to the shared library)
+  * When running `archive-tool.exe` or `mono archive-tool.exe`, you should see the usage summary, without any WARNINGs
+* Add the `bin` subdirectory to your PATH for easy access
 
 Usage
 -----
