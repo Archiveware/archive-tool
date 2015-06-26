@@ -145,11 +145,11 @@ Usage Summary
 
 First extract `.slice` files from all available media images, automatically performing any required repairs:
 
-    archive-tool.exe -t media -i *.iso -x -r
+    archive-tool.exe -t media -i *.iso -o slicefiles -x -r
 
 Then convert the `.slice` files to a single `.ArchiveSet` file, again automatically repairing any non-fatal damage:
 
-    archive-tool.exe -t slice -i *.slice -x -r
+    archive-tool.exe -t slice -i slicefiles\*.slice -x -r
 
 Finally, extract the originally archived files from the `.ArchiveSet` file, using a private key file you provide:
 
