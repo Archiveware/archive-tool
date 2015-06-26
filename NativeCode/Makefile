@@ -9,3 +9,6 @@ libNativeCode.so: crc32c.o galois.o  Interface.o  jerasure.o  lz4.o  reed_sol.o
 
 clean:
 	rm libNativeCode.so crc32c.o galois.o Interface.o jerasure.o lz4.o reed_sol.o
+
+install:
+	cp libNativeCode.so ../bin/
