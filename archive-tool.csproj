@@ -100,6 +100,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
+    <None Include="archive-tool.exe.config" />
     <None Include="LICENSE" />
     <None Include="packages.config" />
     <None Include="README.md" />
