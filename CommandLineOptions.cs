@@ -1,9 +1,4 @@
 ﻿using CommandLine;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ArchiveTool
 {
@@ -29,5 +24,8 @@ namespace ArchiveTool
 
         [Option('k', "keyfile", HelpText = "File containing a (certificate with a) private key (PEM or PKCS#12/PFX format) authorized for the archive set")]
         public string KeyFile { get; set; }
+
+        [Option('e', "enumerate", DefaultValue = false, HelpText = "Enumerate top-level folders when looking for input file(s)")]
+        public bool Enumerate { get; set; }
     }
 }

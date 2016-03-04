@@ -43,7 +43,7 @@ namespace ArchiveTool
                 if (!string.IsNullOrEmpty(inputPath) && !inputPath.Contains(Path.DirectorySeparatorChar))
                     inputPath = Path.Combine(Environment.CurrentDirectory, inputPath);
 
-                if (MatchingFileCount(inputPath) == 0)
+                if (MatchingFileCount(inputPath, result.Value.Enumerate) == 0)
                 {
                     Console.WriteLine("Specified input file(s) could not be found");
                     Environment.Exit(1);
@@ -66,13 +66,13 @@ namespace ArchiveTool
 
                 var objectType = string.IsNullOrEmpty(result.Value.ObjectType) ? "" : result.Value.ObjectType.ToLower();
                 if (objectType.StartsWith("media"))
-                    WildcardExpander(inputPath, file => MediaProcessor.Scan(file, outputPath, result.Value.DoRepair, result.Value.DoExtract, result.Value.Verbose));
+                    WildcardExpander(inputPath, result.Value.Enumerate, file => MediaProcessor.Scan(file, outputPath, result.Value.DoRepair, result.Value.DoExtract, result.Value.Verbose));
                 else if (objectType.StartsWith("slice"))
-                    WildcardExpander(inputPath, file => ArchiveSliceProcessor.Process(file, outputPath, result.Value.DoRepair, result.Value.DoExtract, result.Value.Verbose));
+                    WildcardExpander(inputPath, result.Value.Enumerate, file => ArchiveSliceProcessor.Process(file, outputPath, result.Value.DoRepair, result.Value.DoExtract, result.Value.Verbose));
                 else if (objectType.StartsWith("archive"))
-                    WildcardExpander(inputPath, file => ArchiveSetProcessor.Scan(file, explicitKey, outputPath, result.Value.DoExtract, result.Value.Verbose));
+                    WildcardExpander(inputPath, result.Value.Enumerate, file => ArchiveSetProcessor.Scan(file, explicitKey, outputPath, result.Value.DoExtract, result.Value.Verbose));
                 else if (objectType.StartsWith("small"))
-                    WildcardExpander(inputPath, file => SmallFileBundleProcessor.Scan(file, outputPath, result.Value.DoExtract, result.Value.Verbose));
+                    WildcardExpander(inputPath, result.Value.Enumerate, file => SmallFileBundleProcessor.Scan(file, outputPath, result.Value.DoExtract, result.Value.Verbose));
                 else
                 {
                     Console.WriteLine("Invalid object type: should be Media, Slice, Archive or SmallFileBundle");
@@ -81,17 +81,32 @@ namespace ArchiveTool
             }
         }
 
-        internal static void WildcardExpander(string path, WildcardExpanderDelegate action)
+        internal static void WildcardExpander(string path, bool enumerate, WildcardExpanderDelegate action)
         {
             var di = new DirectoryInfo(Path.GetDirectoryName(path));
-            foreach (var file in di.GetFiles(Path.GetFileName(path)))
-                action.Invoke(file.FullName);
+            if (enumerate)
+            {
+                foreach (var di2 in di.GetDirectories())
+                    foreach (var file in di2.GetFiles(Path.GetFileName(path)))
+                        action.Invoke(file.FullName);
+            }
+            else
+                foreach (var file in di.GetFiles(Path.GetFileName(path)))
+                    action.Invoke(file.FullName);
         }
 
-        internal static int MatchingFileCount(string path)
+        internal static int MatchingFileCount(string path, Boolean enumerate)
         {
             var di = new DirectoryInfo(Path.GetDirectoryName(path));
-            return di.GetFiles(Path.GetFileName(path)).Count();
+            if (enumerate)
+            {
+                int count = 0;
+                foreach (var di2 in di.GetDirectories())
+                    count += di2.GetFiles(Path.GetFileName(path)).Count();
+                return count;
+            }
+            else
+                return di.GetFiles(Path.GetFileName(path)).Count();
         }
     }
 }
