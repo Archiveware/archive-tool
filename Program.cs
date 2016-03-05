@@ -87,8 +87,15 @@ namespace ArchiveTool
             if (enumerate)
             {
                 foreach (var di2 in di.GetDirectories())
-                    foreach (var file in di2.GetFiles(Path.GetFileName(path)))
-                        action.Invoke(file.FullName);
+                    try
+                    {
+                        foreach (var file in di2.GetFiles(Path.GetFileName(path)))
+                            action.Invoke(file.FullName);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Warning: {di2.FullName} not processed: {ex.Message}");
+                    }
             }
             else
                 foreach (var file in di.GetFiles(Path.GetFileName(path)))
@@ -102,7 +109,14 @@ namespace ArchiveTool
             {
                 int count = 0;
                 foreach (var di2 in di.GetDirectories())
-                    count += di2.GetFiles(Path.GetFileName(path)).Count();
+                    try
+                    {
+                        count += di2.GetFiles(Path.GetFileName(path)).Count();
+                    }
+                    catch (Exception)
+                    {
+                        Console.WriteLine($"Warning: {di2.FullName} is inaccessible");
+                    }
                 return count;
             }
             else
