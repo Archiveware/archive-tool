@@ -60,7 +60,8 @@ namespace ArchiveTool
                     if (extract)
                         using (var outStream = new FileStream(Path.Combine(outPath, string.Format("{0}.ArchivewareSet", header.SetIdentifier)), FileMode.OpenOrCreate, FileAccess.Write))
                         {
-                            outStream.Seek(header.DataLength * (header.Sequence - 1), SeekOrigin.Begin);
+                            long offset = (long)header.DataLength * (long)(header.Sequence - 1);
+                            outStream.Seek(offset, SeekOrigin.Begin);
                             outStream.Write(buffer, 0, buffer.Length);
                         }
                 }
