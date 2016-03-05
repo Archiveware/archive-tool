@@ -34,6 +34,8 @@ namespace ArchiveTool
                                 validPartitions.Add(header.PartitionIdentity, header);
                         }
                     }
+                    if (!verbose)
+                        Console.WriteLine();
                 }
             }
             catch (Exception ex)
