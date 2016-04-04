@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
-using System.Diagnostics;
 
 namespace ArchiveTool
 {
@@ -18,7 +14,7 @@ namespace ArchiveTool
                 if (extract && !Directory.Exists(outPath))
                     Directory.CreateDirectory(outPath);
 
-                using (var fs = new FileStream(inFile, FileMode.Open))
+                using (var fs = new FileStream(inFile, FileMode.Open, repair ? FileAccess.ReadWrite : FileAccess.Read))
                 {
                     Console.WriteLine("Scanning {0} for media partition headers", inFile);
                     var headers = HeaderScan(fs, verbose);
