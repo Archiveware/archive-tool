@@ -20,7 +20,7 @@ namespace ArchiveTool
         public byte[] DataHash = new byte[48];
         public byte[] IV = new byte[16];
         public UInt16 KeyIndex;
-        public UInt32 UncompressedDataLength;
+        public UInt32 CompressedDataCrc;
         public UInt32 CompressedDataLength;
         public UInt32 EncryptedDataLength;
         public UInt32 EncryptedDataCrc;
@@ -52,7 +52,7 @@ namespace ArchiveTool
                 Array.ConstrainedCopy(headerData, 52, header.DataHash, 0, 48);
                 Array.ConstrainedCopy(headerData, 100, header.IV, 0, 16);
                 header.KeyIndex = BitConverter.ToUInt16(headerData, 116);
-                header.UncompressedDataLength = BitConverter.ToUInt32(headerData, 118);
+                header.CompressedDataCrc = BitConverter.ToUInt32(headerData, 118);
                 header.CompressedDataLength = BitConverter.ToUInt32(headerData, 122);
                 header.EncryptedDataLength = BitConverter.ToUInt32(headerData, 126);
                 header.EncryptedDataCrc = BitConverter.ToUInt32(headerData, 130);

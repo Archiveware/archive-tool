@@ -100,21 +100,24 @@ namespace ArchiveTool
                                 {
                                     throw new ArchiveFileException("unexpected decryption failure: {0}", ex.Message);
                                 }
+
+                            if (header.CompressedDataCrc != Crc32CWrapper.ComputeCrc32C(plaintextExtent, 0, (int)header.CompressedDataLength))
+                                throw new ArchiveFileException("content CRC mismatch after decryption");
                         }
 
                         if (header.IsCopyOfExtentSequence != 0)
                             CopiedExtents.Add(header);
                         else
                         {
-                            byte[] decompressedExtent = new byte[header.UncompressedDataLength];
+                            byte[] decompressedExtent = new byte[header.ExtentLength];
                             var inHandle = GCHandle.Alloc(plaintextExtent, GCHandleType.Pinned);
                             var outHandle = GCHandle.Alloc(decompressedExtent, GCHandleType.Pinned);
 
-                            int byteCount = NativeMethods.Decompress(inHandle.AddrOfPinnedObject(), outHandle.AddrOfPinnedObject(), (int)header.CompressedDataLength, (int)header.UncompressedDataLength);
+                            int byteCount = NativeMethods.Decompress(inHandle.AddrOfPinnedObject(), outHandle.AddrOfPinnedObject(), (int)header.CompressedDataLength, (int)header.ExtentLength);
                             outHandle.Free();
                             inHandle.Free();
 
-                            if (byteCount != header.UncompressedDataLength)
+                            if (byteCount != header.ExtentLength)
                                 throw new ArchiveFileException("unexpected decompression failure: {0}", byteCount);
 
                             VerifyExtent(header, decompressedExtent);
