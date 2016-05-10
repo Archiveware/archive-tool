@@ -89,7 +89,7 @@ namespace ArchiveTool
                         if (!Keys.GetKeyByIndex(header.KeyIndex, out key))
                             throw new ArchiveFileException("missing encryption key");
 
-                        using (var csp = new System.Security.Cryptography.AesCryptoServiceProvider() { Key = key, IV = header.IV })
+                        using (var csp = new System.Security.Cryptography.AesCryptoServiceProvider() { Key = key, IV = header.IV, Padding = PaddingMode.None })
                         {
                             using (var decryptor = csp.CreateDecryptor())
                                 try
